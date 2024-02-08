@@ -3,27 +3,24 @@ from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit
 
 
-class Cadastro(QMainWindow):
+class Logar(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("CADASTRAR")
+        self.setWindowTitle("LOGIN")
 
-        label = QLabel("CADASTRO")
+        label = QLabel("LOGIN")
 
-        button = QPushButton("Cadastrar")
+        button = QPushButton("Fazer Login")
 
         labelemail = QLabel("Email")
         textoemail = QLineEdit(self)
 
-        labelnome = QLabel("Nome Completo")
-        textonome = QLineEdit(self)
-
         labelsenha = QLabel("Senha")
         textosenha = QLineEdit(self)
 
-        labelsenha2 = QLabel("Confirmar Senha")
-        textosenha2 =QLineEdit(self)
+        buttonesq = QPushButton("Esqueci minha senha")
+
 
         # Crie um widget central para a janela inicial
         central_widget = QWidget()
@@ -42,20 +39,21 @@ class Cadastro(QMainWindow):
         label_layout = QVBoxLayout()
         label_layout.addWidget(label)
         label_layout.setAlignment(label, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
-        label_layout.setContentsMargins(63, 20, 0, 0)  # Margens específicas para o layout do label
+        label_layout.setContentsMargins(120, 50, 0, 0)  # Margens específicas para o layout do label
 
         texto_layout = QVBoxLayout()
-        texto_layout.addWidget(labelnome)
-        texto_layout.addWidget(textonome)
         texto_layout.addWidget(labelemail)
         texto_layout.addWidget(textoemail)
         texto_layout.addWidget(labelsenha)
         texto_layout.addWidget(textosenha)
-        texto_layout.addWidget(labelsenha2)
-        texto_layout.addWidget(textosenha2)
         texto_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
-        texto_layout.setContentsMargins(30, 0, 0, 0)
-        texto_layout.setSpacing(5)
+        texto_layout.setContentsMargins(30, 40, 0, 0)
+        texto_layout.setSpacing(10)
+
+        esqlayout = QVBoxLayout()
+        esqlayout.addWidget(buttonesq)
+        esqlayout.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        esqlayout.setContentsMargins(30, 0, 0, 40)
 
         # Layout para os botões
         button_layout = QVBoxLayout()
@@ -65,20 +63,18 @@ class Cadastro(QMainWindow):
         button_layout.setSpacing(30)
 
         button.setFixedSize(100, 50)
-        label.setFixedSize(290, 50)
+        label.setFixedSize(150, 50)
         textoemail.setFixedSize(330, 30)
-        textonome.setFixedSize(330, 30)
         labelemail.setFixedSize(100, 30)
-        labelnome.setFixedSize(200, 30)
         labelsenha.setFixedSize(100,30)
-        labelsenha2.setFixedSize(200, 30)
         textosenha.setFixedSize(330, 30)
-        textosenha2.setFixedSize(330, 30)
+        buttonesq.setFixedSize(150, 40)
         label.setAutoFillBackground(False)
 
         # Adicione os layouts ao layout principal
         layout.addLayout(label_layout)
         layout.addLayout(texto_layout)
+        layout.addLayout(esqlayout)
         layout.addLayout(button_layout)
 
         # Defina o estilo do texto da label
@@ -86,11 +82,7 @@ class Cadastro(QMainWindow):
             "font-size: 50px; text-align: center; color: white; background: rgba(255, 255, 255, 0); font-weight: bold")
         labelemail.setStyleSheet(
             "font-size: 18px; color: white; background: rgba(255, 255, 255, 0); font-weight: bold")
-        labelnome.setStyleSheet(
-            "font-size: 18px; color: white; background: rgba(255, 255, 255, 0); font-weight: bold")
         labelsenha.setStyleSheet(
-            "font-size: 18px; color: white; background: rgba(255, 255, 255, 0); font-weight: bold")
-        labelsenha2.setStyleSheet(
             "font-size: 18px; color: white; background: rgba(255, 255, 255, 0); font-weight: bold")
         self.setWindowIcon(QIcon("imagens/IC.ico"))
         self.resize(400, 500)

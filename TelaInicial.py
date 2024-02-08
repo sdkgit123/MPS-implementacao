@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication
 from Cadastrar import Cadastro
+from Login import Logar
 
 class TelaInicial(QMainWindow):
     def __init__(self):
@@ -18,13 +19,23 @@ class TelaInicial(QMainWindow):
 
         self.janela_cadastro = None
 
+        self.janela_login = None
+
         def abrir_cadastro():
             if self.janela_cadastro is None:
                 self.hide()
                 self.janela_cadastro = Cadastro()  # Crie uma nova instância apenas se ainda não existir
             self.janela_cadastro.show()
 
-        button.clicked.connect(abrir_cadastro)  # Conecte o sinal clicked do botão à função abrir_cadastro
+        button.clicked.connect(abrir_cadastro)
+
+        def abrir_login():
+            if self.janela_login is None:
+                self.hide()
+                self.janela_login = Logar()  # Crie uma nova instância apenas se ainda não existir
+            self.janela_login.show()
+
+        otobutton.clicked.connect(abrir_login)
 
         # Crie um widget central para a janela inicial
         central_widget = QWidget()
