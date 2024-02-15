@@ -1,8 +1,6 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit
-
-
+from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QDialog
 class Logar(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -21,6 +19,34 @@ class Logar(QMainWindow):
 
         buttonesq = QPushButton("Esqueci minha senha")
 
+        def abrir_esq():
+            dialog = QDialog()
+            main_layout = QVBoxLayout()
+            content_layout = QVBoxLayout()
+            button_layout = QVBoxLayout()
+            dialog.setWindowTitle("ESQUECI MINHA SENHA")
+            dialog.setWindowIcon(QIcon("imagens/IC.ico"))
+            labelavi = QLabel("Funcionalidade indisponível.")
+            buttonavi = QPushButton("Fechar")
+            buttonavi.setFixedSize(100, 30)
+            content_layout.addWidget(labelavi)
+            content_layout.setContentsMargins(15, 0, 0, 0)
+
+            button_layout.addWidget(buttonavi)
+            button_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
+            button_layout.setContentsMargins(40, 0, 0, 0)
+
+            main_layout.addLayout(content_layout)
+            main_layout.addLayout(button_layout)
+
+            buttonavi.clicked.connect(dialog.close)
+
+            dialog.setLayout(main_layout)
+            dialog.resize(200, 80)
+            dialog.setMaximumSize(200, 80)
+            dialog.exec()
+
+        buttonesq.clicked.connect(abrir_esq)
 
         # Crie um widget central para a janela inicial
         central_widget = QWidget()
