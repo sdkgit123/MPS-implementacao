@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit
-
+from TelaPrincipal import CalendarioApp
 
 class Cadastro(QMainWindow):
     def __init__(self):
@@ -25,12 +25,22 @@ class Cadastro(QMainWindow):
         labelsenha2 = QLabel("Confirmar Senha")
         textosenha2 =QLineEdit(self)
 
+        self.janelapri = None
+
         # Crie um widget central para a janela inicial
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
         # Use um layout QVBoxLayout para organizar os widgets
         layout = QVBoxLayout(central_widget)
+
+        def abrirtelapri():
+            if self.janelapri is None:
+                self.close()
+                self.janelapri = CalendarioApp()  # Crie uma nova instância apenas se ainda não existir
+            self.janelapri.show()
+
+        button.clicked.connect(abrirtelapri)
 
         # Configurar a imagem de fundo da janela usando QLabel
         background_image = QLabel(central_widget)

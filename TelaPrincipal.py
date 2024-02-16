@@ -1,9 +1,8 @@
 import sys
-
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QVBoxLayout, QPushButton, QWidget, QHBoxLayout, \
-    QLabel, QStackedWidget, QGridLayout
+    QLabel, QStackedWidget, QFrame, QGridLayout, QToolBar
 
 
 class CalendarioApp(QMainWindow):
@@ -18,13 +17,14 @@ class CalendarioApp(QMainWindow):
                     ['Outubro', 'Novembro', 'Dezembro']]
 
         self.numeromes = [[1, 2, 3],
-                    [4, 5, 6],
-                    [7, 8, 9],
-                    [10, 11, 12]]
+                          [4, 5, 6],
+                          [7, 8, 9],
+                          [10, 11, 12]]
 
         self.setWindowTitle("Calendário")
-        self.setGeometry(100, 100, 400, 300)
-
+        self.setGeometry(100, 100, 800, 500)  # Definindo uma largura maior para a janela
+        icon_path = "imagens/IC.ico"  # Certifique-se de fornecer o caminho correto para o ícone
+        CalendarioApp.setWindowIcon(self, QIcon(icon_path))
         # Criando um widget central para conter o layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -32,46 +32,11 @@ class CalendarioApp(QMainWindow):
         # Criando um layout vertical
         layout_principal = QVBoxLayout(central_widget)
 
-        # Criando um layout horizontal para os botões
-        layout_botoes = QHBoxLayout()
+        # Criando um layout horizontal para os botões e menu lateral
+        layout_horizontal = QHBoxLayout()
 
-
-        self.menu_lateral = QWidget()
-        self.menu_lateral.setMinimumWidth(100)  # Defina a largura mínima do menu lateral
-        self.menu_lateral_layout = QVBoxLayout(self.menu_lateral)
-        self.menu_lateral_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)  # Alinhe os elementos no topo do menu lateral
-
-        # Adicione elementos ao menu lateral
-        self.label_menu = QLabel("Menu")
-        self.botao_opcao1 = QPushButton("Opção 1")
-        self.botao_opcao2 = QPushButton("Opção 2")
-        self.menu_lateral_layout.addWidget(self.label_menu)
-        self.menu_lateral_layout.addWidget(self.botao_opcao1)
-        self.menu_lateral_layout.addWidget(self.botao_opcao2)
-
-        # Inicialmente, o menu lateral está oculto
-        self.menu_lateral.setVisible(False)
-
-        # Botão para mostrar/ocultar o menu lateral
-        botaomenul = QPushButton("=")
-        botaomenul.clicked.connect(self.toggle_menu_lateral)
-
-        # Adiciona o menu lateral à esquerda da janela
-        layout_principal.addWidget(self.menu_lateral)
-        layout_principal.addWidget(botaomenul, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-
-        # Adicionando um botão anterior ao layout de botões
-        botao_antes = QPushButton("<<")
-        layout_botoes.addWidget(botao_antes)
-
-        self.botao_anomes = QPushButton("")
-        layout_botoes.addWidget(self.botao_anomes)
-
-        # Adicionando um botão posterior ao layout de botões
-        botao_depois = QPushButton(">>")
-        layout_botoes.addWidget(botao_depois)
-
-        layout_principal.addLayout(layout_botoes)
+        # Adiciona o layout horizontal ao layout principal
+        layout_principal.addLayout(layout_horizontal)
 
         # Criando um QStackedWidget para alternar entre calendário e texto
         self.stacked_widget = QStackedWidget()
@@ -82,6 +47,7 @@ class CalendarioApp(QMainWindow):
         self.stacked_widget.addWidget(self.calendario_widget)
 
         # Criando um QWidget para conter a grade de botões
+        self.widget_grid = QWidget()
         self.grid_layout = QGridLayout(self.widget_grid)
 
         # Criar e adicionar botões à matriz de 4x3
@@ -89,17 +55,25 @@ class CalendarioApp(QMainWindow):
             for col in range(3):
                 button = QPushButton(f"{listames[row][col]}")
                 self.grid_layout.addWidget(button, row, col)
-                button.setFixedSize(90,90)
-                self.grid_layout.setContentsMargins(20,20,20,20)
+                button.setFixedSize(90, 90)
+                self.grid_layout.setContentsMargins(20, 20, 20, 20)
                 button.clicked.connect(self.botao_clicado)
-
 
         self.stacked_widget.addWidget(self.widget_grid)
 
         # Conectando os botões aos métodos correspondentes
-        botao_antes.clicked.connect(self.voltar_um_mes)
-        botao_depois.clicked.connect(self.avancar_um_mes)
+        self.botao_anomes = QPushButton("")
         self.botao_anomes.clicked.connect(self.toggle_widget)
+        botao_antes = QPushButton("<<")
+        botao_antes.clicked.connect(self.voltar_um_mes)
+        botao_depois = QPushButton(">>")
+        botao_depois.clicked.connect(self.avancar_um_mes)
+
+        # Adiciona os botões ao layout horizontal
+        layout_horizontal.addWidget(botao_antes)
+        layout_horizontal.addWidget(self.botao_anomes)
+        layout_horizontal.addWidget(botao_depois)
+        central_widget.setLayout(layout_principal)
 
         # Configurações adicionais para o calendário
         self.calendario_widget.setVerticalHeaderFormat(QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)
@@ -109,8 +83,28 @@ class CalendarioApp(QMainWindow):
 
         self.atualizar_mes()
 
-        self.resize(400, 500)
-        self.setMaximumSize(400, 500)
+        self.resize(800, 500)  # Redimensiona a janela
+        self.setMaximumSize(800, 500)
+
+        self.create_toolbar()
+
+    def create_toolbar(self):
+        action = QAction("Ação na Toolbar", self)
+        button_action2 = QAction("Bueno", self)
+        menu = self.menuBar()
+        file_menu = menu.addMenu("File")
+
+
+        file_menu.addAction(action)
+        file_menu.addAction(button_action2)
+        icon_path = "imagens/MN.png"  # Certifique-se de fornecer o caminho correto para o ícone
+        file_menu.setIcon(QIcon(icon_path))
+
+        menu.setStyleSheet("background-color: #993399; color: #ffffff")
+        menu.setMinimumHeight(30)
+
+        menu.addMenu(file_menu)
+
 
     def voltar_um_mes(self):
         if self.exibindo_calendario:
@@ -164,8 +158,6 @@ class CalendarioApp(QMainWindow):
                     self.toggle_widget()
                     return
 
-    def toggle_menu_lateral(self):
-        self.menu_lateral.setVisible(not self.menu_lateral.isVisible())
 
 def main():
     app = QApplication(sys.argv)

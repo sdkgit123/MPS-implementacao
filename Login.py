@@ -1,6 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QDialog
+from TelaPrincipal import CalendarioApp
 class Logar(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -18,6 +19,8 @@ class Logar(QMainWindow):
         textosenha = QLineEdit(self)
 
         buttonesq = QPushButton("Esqueci minha senha")
+
+        self.janelapri = None
 
         def abrir_esq():
             dialog = QDialog()
@@ -47,6 +50,14 @@ class Logar(QMainWindow):
             dialog.exec()
 
         buttonesq.clicked.connect(abrir_esq)
+
+        def abrirtelapri():
+            if self.janelapri is None:
+                self.close()
+                self.janelapri = CalendarioApp()  # Crie uma nova instância apenas se ainda não existir
+            self.janelapri.show()
+
+        button.clicked.connect(abrirtelapri)
 
         # Crie um widget central para a janela inicial
         central_widget = QWidget()
