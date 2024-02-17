@@ -61,6 +61,5 @@ class Agenda(QMainWindow):
         self.setMaximumSize(400, 500)
 
     def on_agenda_closed(self):
-        from TelaPrincipal import 
         telainicio = abrir_agendar()
         telainicio.show()
