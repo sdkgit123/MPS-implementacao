@@ -1,9 +1,8 @@
 import sys
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QAction, QIcon
+from PyQt6.QtGui import QAction, QIcon, QPixmap, QFont
 from PyQt6.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QVBoxLayout, QPushButton, QWidget, QHBoxLayout, \
-    QLabel, QStackedWidget, QFrame, QGridLayout, QToolBar
-
+    QStackedWidget, QGridLayout, QLabel
+from Agendar import Agenda
 
 class CalendarioApp(QMainWindow):
     def __init__(self):
@@ -21,6 +20,8 @@ class CalendarioApp(QMainWindow):
                           [7, 8, 9],
                           [10, 11, 12]]
 
+        self.janelaagenda = None
+
         self.setWindowTitle("Calendário")
         self.setGeometry(100, 100, 800, 500)  # Definindo uma largura maior para a janela
         icon_path = "imagens/IC.ico"  # Certifique-se de fornecer o caminho correto para o ícone
@@ -28,6 +29,11 @@ class CalendarioApp(QMainWindow):
         # Criando um widget central para conter o layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
+
+        background_image = QLabel(central_widget)
+        background_image.setPixmap(QPixmap("imagens/TI.png"))
+        background_image.setGeometry(0, 0, 800, 500)
+        background_image.lower()
 
         # Criando um layout vertical
         layout_principal = QVBoxLayout(central_widget)
@@ -45,7 +51,8 @@ class CalendarioApp(QMainWindow):
         # Adicionando o widget de calendário ao QStackedWidget
         self.calendario_widget = QCalendarWidget()
         self.stacked_widget.addWidget(self.calendario_widget)
-
+        self.calendario_widget.setStyleSheet("background-color: #b34db2")
+        self.calendario_widget.setGridVisible(True)
         # Criando um QWidget para conter a grade de botões
         self.widget_grid = QWidget()
         self.grid_layout = QGridLayout(self.widget_grid)
@@ -88,23 +95,35 @@ class CalendarioApp(QMainWindow):
 
         self.create_toolbar()
 
+
     def create_toolbar(self):
-        action = QAction("Ação na Toolbar", self)
-        button_action2 = QAction("Bueno", self)
+        action = QAction("Agendar", self)
+        action2 = QAction("Bueno", self)
         menu = self.menuBar()
         file_menu = menu.addMenu("File")
-
-
+        title_action = QAction("Fulano de Tal", self)
+        menu.setStyleSheet("font-family: Arial; font-size: 20pt; font-weight: bold; background-color: #993399; color: #ffffff")
+        title_action.setEnabled(False)
+        font = QFont()
+        font.setFamily("Arial")
+        font.setPointSize(12)
+        font.setBold(True)
+        action.setFont(font)
+        action2.setFont(font)
         file_menu.addAction(action)
-        file_menu.addAction(button_action2)
+        file_menu.addAction(action2)
         icon_path = "imagens/MN.png"  # Certifique-se de fornecer o caminho correto para o ícone
         file_menu.setIcon(QIcon(icon_path))
-
-        menu.setStyleSheet("background-color: #993399; color: #ffffff")
         menu.setMinimumHeight(30)
-
+        action.triggered.connect(self.abrir_agendar)
         menu.addMenu(file_menu)
+        menu.addAction(title_action)
 
+    def abrir_agendar(self):
+        if self.janelaagenda is None:
+            self.hide()
+            self.janelaagenda = Agenda()  # Crie uma nova instância apenas se ainda não existir
+            self.janelaagenda.show()
 
     def voltar_um_mes(self):
         if self.exibindo_calendario:
@@ -132,7 +151,7 @@ class CalendarioApp(QMainWindow):
             self.botao_anomes.setText(f"{ano}")
 
     def toggle_widget(self):
-        # Método para alternar entre o calendário e a grade de botões
+            # Método para alternar entre o calendário e a grade de botões
         if self.exibindo_calendario:
             self.stacked_widget.setCurrentWidget(self.widget_grid)
             ano = self.calendario_widget.yearShown()
@@ -149,7 +168,7 @@ class CalendarioApp(QMainWindow):
         sender = self.sender()  # Obter o botão que enviou o sinal
         for row in range(4):
             for col in range(3):
-                # Verificar se o objeto do botão na posição (row, col) é o mesmo que o sender
+                    # Verificar se o objeto do botão na posição (row, col) é o mesmo que o sender
                 if self.grid_layout.itemAtPosition(row, col).widget() == sender:
                     ano = self.calendario_widget.yearShown()
                     self.calendario_widget.setSelectedDate(self.calendario_widget.selectedDate().addYears(
