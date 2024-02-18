@@ -1,12 +1,17 @@
 import sys
-from PyQt6.QtGui import QAction, QIcon, QPixmap, QFont
-from PyQt6.QtWidgets import QApplication, QMainWindow, QCalendarWidget, QVBoxLayout, QPushButton, QWidget, QHBoxLayout, \
-    QStackedWidget, QGridLayout, QLabel
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont
+from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QHBoxLayout, \
+    QStackedWidget, QCalendarWidget, QGridLayout
 from Agendar import Agenda
 
 class CalendarioApp(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        self.agenda = None
 
         self.widget_grid = QWidget()
 
@@ -22,7 +27,7 @@ class CalendarioApp(QMainWindow):
 
         self.janelaagenda = None
 
-        self.setWindowTitle("Calendário")
+        self.setWindowTitle("TELA PRINCIPAL")
         self.setGeometry(100, 100, 800, 500)  # Definindo uma largura maior para a janela
         icon_path = "imagens/IC.ico"  # Certifique-se de fornecer o caminho correto para o ícone
         CalendarioApp.setWindowIcon(self, QIcon(icon_path))
@@ -51,7 +56,7 @@ class CalendarioApp(QMainWindow):
         # Adicionando o widget de calendário ao QStackedWidget
         self.calendario_widget = QCalendarWidget()
         self.stacked_widget.addWidget(self.calendario_widget)
-        self.calendario_widget.setStyleSheet("background-color: #b34db2")
+        self.calendario_widget.setStyleSheet("background-color: #b34db2; font-weight: bold")
         self.calendario_widget.setGridVisible(True)
         # Criando um QWidget para conter a grade de botões
         self.widget_grid = QWidget()
@@ -62,8 +67,9 @@ class CalendarioApp(QMainWindow):
             for col in range(3):
                 button = QPushButton(f"{listames[row][col]}")
                 self.grid_layout.addWidget(button, row, col)
-                button.setFixedSize(90, 90)
-                self.grid_layout.setContentsMargins(20, 20, 20, 20)
+                button.setFixedSize(100, 100)
+                self.grid_layout.setContentsMargins(10, 10, 10, 10)
+                button.setStyleSheet("background-color: #b34db2; color: white")
                 button.clicked.connect(self.botao_clicado)
 
         self.stacked_widget.addWidget(self.widget_grid)
@@ -94,7 +100,7 @@ class CalendarioApp(QMainWindow):
         self.setMaximumSize(800, 500)
 
         self.create_toolbar()
-
+        self.agenda = None
 
     def create_toolbar(self):
         action = QAction("Agendar", self)
@@ -115,15 +121,11 @@ class CalendarioApp(QMainWindow):
         icon_path = "imagens/MN.png"  # Certifique-se de fornecer o caminho correto para o ícone
         file_menu.setIcon(QIcon(icon_path))
         menu.setMinimumHeight(30)
-        action.triggered.connect(self.abrir_agendar)
+        action.triggered.connect(self.mostrar_agenda)
         menu.addMenu(file_menu)
         menu.addAction(title_action)
 
-    def abrir_agendar(self):
-        if self.janelaagenda is None:
-            self.hide()
-            self.janelaagenda = Agenda()  # Crie uma nova instância apenas se ainda não existir
-            self.janelaagenda.show()
+
 
     def voltar_um_mes(self):
         if self.exibindo_calendario:
@@ -176,13 +178,22 @@ class CalendarioApp(QMainWindow):
                     self.stacked_widget.setCurrentWidget(self.calendario_widget)
                     self.toggle_widget()
                     return
+    def mostrar_agenda(self):
+        self.hide()
+        self.agenda = Agenda()
+        self.agenda.fechar_agenda.connect(self.mostrar_principal)
+        self.agenda.show()
+
+    def mostrar_principal(self):
+        self.agenda.close()
+        self.show()
 
 
-def main():
-    app = QApplication(sys.argv)
-    window = CalendarioApp()
-    window.show()
-    sys.exit(app.exec())
 
 if __name__ == '__main__':
-    main()
+    app = QApplication(sys.argv)
+    tela_inicial = CalendarioApp()
+    tela_inicial.show()
+    sys.exit(app.exec())
+
+
