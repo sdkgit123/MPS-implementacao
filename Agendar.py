@@ -103,3 +103,4 @@ if __name__ == "__main__":
     tela_inicial = Agenda()
     tela_inicial.show()
     sys.exit(app.exec())
+
