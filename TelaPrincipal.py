@@ -4,6 +4,7 @@ from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QHBoxLayout, \
     QStackedWidget, QCalendarWidget, QGridLayout, QDialog
 from Agendar import Agenda
+from Historico import Historico
 
 class CalendarioApp(QMainWindow):
     def __init__(self):
@@ -101,6 +102,7 @@ class CalendarioApp(QMainWindow):
 
         self.create_toolbar()
         self.agenda = None
+        self.hist = None
 
     def naoac(self):
         dialog = QDialog()
@@ -213,6 +215,7 @@ class CalendarioApp(QMainWindow):
         file_menu.setIcon(QIcon(icon_path))
         menu.setMinimumHeight(30)
         action.triggered.connect(self.mostrar_agenda)
+        action2.triggered.connect(self.mostrar_historico)
         action3.triggered.connect(self.naoac)
         action4.triggered.connect(self.naocn)
         action5.triggered.connect(self.naocf)
@@ -276,11 +279,19 @@ class CalendarioApp(QMainWindow):
         self.agenda.fechar_agenda.connect(self.mostrar_principal)
         self.agenda.show()
 
+    def mostrar_historico(self):
+        self.hide()
+        self.hist = Historico()
+        self.hist.fechar_hist.connect(self.mostrar_principal2)
+        self.hist.show()
+
     def mostrar_principal(self):
         self.agenda.close()
         self.show()
 
-
+    def mostrar_principal2(self):
+        self.hist.close()
+        self.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

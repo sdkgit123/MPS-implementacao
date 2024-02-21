@@ -229,7 +229,7 @@ class Agenda(QMainWindow):
         main_layout = QVBoxLayout()
         content_layout = QVBoxLayout()
         button_layout = QVBoxLayout()
-        dialog.setWindowTitle("MOSTRAR AGENDA")
+        dialog.setWindowTitle("AGENDAR")
         dialog.setWindowIcon(QIcon("imagens/IC.ico"))
         labelavi = QLabel("Você já está em Agendar.")
         buttonavi = QPushButton("Fechar")
