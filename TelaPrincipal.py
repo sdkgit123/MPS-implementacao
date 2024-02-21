@@ -1,8 +1,8 @@
 import sys
-from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal, QDate
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QHBoxLayout, \
-    QStackedWidget, QCalendarWidget, QGridLayout, QDialog
+    QStackedWidget, QCalendarWidget, QGridLayout, QDialog, QLineEdit
 from Agendar import Agenda
 from Historico import Historico
 
@@ -16,7 +16,7 @@ class CalendarioApp(QMainWindow):
 
         self.widget_grid = QWidget()
 
-        listames = [['Janeiro', 'Fevereiro', 'Março'],
+        self.listames = [['Janeiro', 'Fevereiro', 'Março'],
                     ['Abril', 'Maio', 'Junho'],
                     ['Julho', 'Agosto', 'Setembro'],
                     ['Outubro', 'Novembro', 'Dezembro']]
@@ -26,10 +26,24 @@ class CalendarioApp(QMainWindow):
                           [7, 8, 9],
                           [10, 11, 12]]
 
+        self.meses = {
+            "Janeiro": 1,
+            "Fevereiro": 2,
+            "Março": 3,
+            "Abril": 4,
+            "Maio": 5,
+            "Junho": 6,
+            "Julho": 7,
+            "Agosto": 8,
+            "Setembro": 9,
+            "Outubro": 10,
+            "Novembro": 11,
+            "Dezembro": 12
+        }
+
         self.janelaagenda = None
 
         self.setWindowTitle("TELA PRINCIPAL")
-        self.setGeometry(100, 100, 800, 500)  # Definindo uma largura maior para a janela
         icon_path = "imagens/IC.ico"  # Certifique-se de fornecer o caminho correto para o ícone
         CalendarioApp.setWindowIcon(self, QIcon(icon_path))
         # Criando um widget central para conter o layout
@@ -38,7 +52,7 @@ class CalendarioApp(QMainWindow):
 
         background_image = QLabel(central_widget)
         background_image.setPixmap(QPixmap("imagens/TI.png"))
-        background_image.setGeometry(0, 0, 800, 500)
+        background_image.setGeometry(0, 0, 850, 600)
         background_image.lower()
 
         # Criando um layout vertical
@@ -49,6 +63,10 @@ class CalendarioApp(QMainWindow):
 
         # Adiciona o layout horizontal ao layout principal
         layout_principal.addLayout(layout_horizontal)
+
+        visor = QLineEdit(self)
+        visor.setFixedSize(791,100)
+        visor.setReadOnly(True)
 
         # Criando um QStackedWidget para alternar entre calendário e texto
         self.stacked_widget = QStackedWidget()
@@ -66,7 +84,7 @@ class CalendarioApp(QMainWindow):
         # Criar e adicionar botões à matriz de 4x3
         for row in range(4):
             for col in range(3):
-                button = QPushButton(f"{listames[row][col]}")
+                button = QPushButton(f"{self.listames[row][col]}")
                 self.grid_layout.addWidget(button, row, col)
                 button.setFixedSize(100, 100)
                 self.grid_layout.setContentsMargins(10, 10, 10, 10)
@@ -87,6 +105,7 @@ class CalendarioApp(QMainWindow):
         layout_horizontal.addWidget(botao_antes)
         layout_horizontal.addWidget(self.botao_anomes)
         layout_horizontal.addWidget(botao_depois)
+        layout_principal.addWidget(visor)
         central_widget.setLayout(layout_principal)
 
         # Configurações adicionais para o calendário
@@ -97,8 +116,8 @@ class CalendarioApp(QMainWindow):
 
         self.atualizar_mes()
 
-        self.resize(800, 500)  # Redimensiona a janela
-        self.setMaximumSize(800, 500)
+        self.resize(800, 600)  # Redimensiona a janela
+        self.setMaximumSize(800, 600)
 
         self.create_toolbar()
         self.agenda = None
@@ -163,7 +182,7 @@ class CalendarioApp(QMainWindow):
         main_layout = QVBoxLayout()
         content_layout = QVBoxLayout()
         button_layout = QVBoxLayout()
-        dialog.setWindowTitle("CONFIGURAÇÕES")
+        dialog.setWindowTitle("RECONFIGURES")
         dialog.setWindowIcon(QIcon("imagens/IC.ico"))
         labelavi = QLabel("Funcionalidade indisponível.")
         buttonavi = QPushButton("Fechar")
@@ -240,22 +259,22 @@ class CalendarioApp(QMainWindow):
 
     def atualizar_mes(self):
         if self.exibindo_calendario:
-            ano = self.calendario_widget.yearShown()
+            self.ano = self.calendario_widget.yearShown()
             mes = self.calendario_widget.monthShown()
-            self.botao_anomes.setText(f"{ano}/{mes:02d}")
+            self.botao_anomes.setText(f"{self.ano}/{mes:02d}")
         else:
-            ano = self.calendario_widget.yearShown()
-            self.botao_anomes.setText(f"{ano}")
+            self.ano = self.calendario_widget.yearShown()
+            self.botao_anomes.setText(f"{self.ano}")
 
     def toggle_widget(self):
-            # Método para alternar entre o calendário e a grade de botões
+        # Método para alternar entre o calendário e a grade de botões
         if self.exibindo_calendario:
             self.stacked_widget.setCurrentWidget(self.widget_grid)
-            ano = self.calendario_widget.yearShown()
+            ano = self.calendario_widget.selectedDate().year()
             self.botao_anomes.setText(str(ano))
         else:
             self.stacked_widget.setCurrentWidget(self.calendario_widget)
-            ano = self.calendario_widget.yearShown()
+            ano = self.calendario_widget.selectedDate().year()
             mes = self.calendario_widget.monthShown()
             self.botao_anomes.setText(f"{ano}/{mes:02d}")
 
@@ -265,11 +284,15 @@ class CalendarioApp(QMainWindow):
         sender = self.sender()  # Obter o botão que enviou o sinal
         for row in range(4):
             for col in range(3):
-                    # Verificar se o objeto do botão na posição (row, col) é o mesmo que o sender
                 if self.grid_layout.itemAtPosition(row, col).widget() == sender:
-                    ano = self.calendario_widget.yearShown()
-                    self.calendario_widget.setSelectedDate(self.calendario_widget.selectedDate().addYears(
-                        ano - self.calendario_widget.selectedDate().year()).addMonths(self.numeromes[row][col] - 2))
+                    mes_nome = self.listames[row][col]
+                    mes_numero = self.meses[mes_nome]  # Obtém o número do mês a partir do dicionário
+                    ano_selecionado = self.ano  # Obter o ano selecionado
+                    self.calendario_widget.setCurrentPage(ano_selecionado,
+                                                          self.calendario_widget.monthShown())  # Atualizar para o ano selecionado
+                    data_str = f"1/{mes_numero}/{ano_selecionado}"
+                    data = QDate.fromString(data_str, "d/M/yyyy")
+                    self.calendario_widget.setSelectedDate(data)
                     self.stacked_widget.setCurrentWidget(self.calendario_widget)
                     self.toggle_widget()
                     return

@@ -49,10 +49,10 @@ class Historico(QMainWindow):
         button = QPushButton("Detalhes")
 
         self.cor_opcoes = {
-            "Reunião": QColor(255, 0, 0),
-            "Lembrete": QColor(255, 255, 0),
-            "Evento": QColor(0, 0, 255),
-            "Tarefa": QColor(50, 205, 50)
+            "Reunião": QColor(255,99,71),
+            "Lembrete": QColor(255,250,205),
+            "Evento": QColor(0,255,255),
+            "Tarefa": QColor(152,251,152)
         }
 
         for row in range(len(self.tipo)):
@@ -266,9 +266,3 @@ class Historico(QMainWindow):
             if self.parent():
                 self.parent().show()
         event.accept()
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    tela_inicial = Historico()
-    tela_inicial.show()
-    sys.exit(app.exec())

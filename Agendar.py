@@ -4,7 +4,6 @@ from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QLineEdit, \
     QHBoxLayout, QComboBox, QDialog
 
-
 class Agenda(QMainWindow):
     fechar_agenda = pyqtSignal()
 
@@ -141,6 +140,8 @@ class Agenda(QMainWindow):
         self.resize(800, 600)
         self.setMaximumSize(800, 600)
         self.create_toolbar()
+
+        self.hist = None
 
         def naoa():
             dialog = QDialog()
@@ -362,12 +363,22 @@ class Agenda(QMainWindow):
         file_menu.setIcon(QIcon(icon_path))
         menu.setMinimumHeight(30)
         action.triggered.connect(self.mostrar_agenda)
+        action2.triggered.connect(self.mostrar_historico)
         action3.triggered.connect(self.naoac)
         action4.triggered.connect(self.naocn)
         action5.triggered.connect(self.naocf)
         menu.addMenu(file_menu)
         menu.addAction(title_action)
+    def mostrar_historico(self):
+        from Historico import Historico
+        self.hide()
+        self.hist = Historico()
+        self.hist.fechar_hist.connect(self.mostrar_principal2)
+        self.hist.show()
 
+    def mostrar_principal2(self):
+        self.hist.close()
+        self.show()
 
     def closeEvent(self, event):
         if not self._closed:
@@ -377,9 +388,4 @@ class Agenda(QMainWindow):
                 self.parent().show()
         event.accept()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    tela_inicial = Agenda()
-    tela_inicial.show()
-    sys.exit(app.exec())
 
