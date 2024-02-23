@@ -10,7 +10,7 @@ import validators
 class Agenda(QMainWindow):
     fechar_agenda = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, numero):
         super().__init__()
         self._closed = False  # Definindo o atributo 'closed' como False inicialmente
         nome_arquivo = "dados.json"
@@ -20,6 +20,8 @@ class Agenda(QMainWindow):
             self.dados = json.load(arquivo)
 
         self.setWindowTitle("AGENDAR")
+
+        self.nome = numero
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -471,7 +473,7 @@ class Agenda(QMainWindow):
         action5 = QAction("Configurações", self)
         menu = self.menuBar()
         file_menu = menu.addMenu("File")
-        title_action = QAction("Fulano de Tal", self)
+        title_action = QAction(f"{self.dados['dadosusuario']['nome'][self.nome]}", self)
         menu.setStyleSheet("font-family: Arial; font-size: 20pt; font-weight: bold; background-color: #993399; color: "
                            "#ffffff")
         title_action.setEnabled(False)
@@ -502,7 +504,7 @@ class Agenda(QMainWindow):
     def mostrar_historico(self):
         from Historico import Historico
         self.hide()
-        self.hist = Historico()
+        self.hist = Historico(self.nome)
         self.hist.fechar_hist.connect(self.mostrar_principal2)
         self.hist.show()
 
@@ -518,9 +520,4 @@ class Agenda(QMainWindow):
                 self.parent().show()
         event.accept()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    tela_inicial = Agenda()
-    tela_inicial.show()
-    sys.exit(app.exec())
 

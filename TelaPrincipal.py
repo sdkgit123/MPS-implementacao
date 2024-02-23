@@ -2,10 +2,11 @@ import sys
 from PyQt6.QtCore import Qt, pyqtSignal, QDate
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont, QTextCharFormat, QColor
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QHBoxLayout, \
-    QStackedWidget, QCalendarWidget, QGridLayout, QDialog, QLineEdit
+    QStackedWidget, QCalendarWidget, QGridLayout, QDialog, QLineEdit, QTextEdit
 from Agendar import Agenda
 from Historico import Historico
 import json
+import validators
 
 class CalendarioApp(QMainWindow):
     def __init__(self, numero):
@@ -49,6 +50,13 @@ class CalendarioApp(QMainWindow):
 
         self.janelaagenda = None
 
+        self.cor_opcoes = {
+            "Reunião": QColor(255, 99, 71),
+            "Lembrete": QColor(255, 250, 205),
+            "Evento": QColor(0, 255, 255),
+            "Tarefa": QColor(152, 251, 152)
+        }
+
         self.setWindowTitle("TELA PRINCIPAL")
         icon_path = "imagens/IC.ico"  # Certifique-se de fornecer o caminho correto para o ícone
         CalendarioApp.setWindowIcon(self, QIcon(icon_path))
@@ -70,7 +78,7 @@ class CalendarioApp(QMainWindow):
         # Adiciona o layout horizontal ao layout principal
         layout_principal.addLayout(layout_horizontal)
 
-        self.visor = QLineEdit(self)
+        self.visor = QTextEdit(self)
         self.visor.setFixedSize(791, 100)
         self.visor.setReadOnly(True)
 
@@ -131,14 +139,36 @@ class CalendarioApp(QMainWindow):
 
         self.calendario_widget.clicked.connect(self.data_selecionada)
 
+        self.botaoagenda2 = QPushButton("Adicionar Nota")
+        self.eventos_encontrados = False
+
     def data_selecionada(self):
+        self.visor.clear()
+        self.eventos_encontrados = False
         data_selecionada = self.calendario_widget.selectedDate()
         data_formatada = data_selecionada.toString("dd/MM/yyyy")
         for i in range (len(self.dados["dadosevento"]["data"])):
+            
             if data_formatada == self.dados["dadosevento"]["data"][i]:
-                self.visor.setText(self.dados["dadosevento"]["data"][i])
-            else:
-                self.visor.setText("Não há eventos para esse dia.")
+                self.data = self.dados["dadosevento"]["data"][i]
+                self.titulo = self.dados["dadosevento"]["titulo"][i]
+                if self.dados["dadosevento"]["tipo"][i] == "Reunião":
+                    self.visor.append(f'<span style="background-color: rgb(255, 99, 71); color: black;">{self.data} - {self.titulo}</span>')
+                elif self.dados["dadosevento"]["tipo"][i] == "Lembrete":
+                    self.visor.append(f'<span style="background-color: rgb(255, 250, 205); color: black;">{self.data} - {self.titulo}</span>')
+
+                elif self.dados["dadosevento"]["tipo"][i] == "Evento":
+                    self.visor.append(f'<span style="background-color: rgb(0, 255, 255); color: black;">{self.data} - {self.titulo}</span>')
+
+                elif self.dados["dadosevento"]["tipo"][i] == "Tarefa":
+                    self.visor.append(f'<span style="background-color: rgb(152, 251, 152); color: black;">{self.data} - {self.titulo}</span>')
+                self.visor.setStyleSheet("background-color: yellow;")
+                self.eventos_encontrados = True  # Indica que eventos foram encontrados para a data selecionada
+
+        if not self.eventos_encontrados:
+            self.visor.append("Não há eventos para esse dia.")
+            self.visor.setStyleSheet("background-color: #BA55D3;")
+            
 
     def naoac(self):
         dialog = QDialog()
@@ -229,7 +259,7 @@ class CalendarioApp(QMainWindow):
         action5 = QAction("Configurações", self)
         menu = self.menuBar()
         file_menu = menu.addMenu("File")
-        title_action = QAction(f"{self.dados["dadosusuario"]["nome"][self.qual]}", self)
+        title_action = QAction(f"{self.dados['dadosusuario']['nome'][self.qual]}", self)
         menu.setStyleSheet("font-family: Arial; font-size: 20pt; font-weight: bold; background-color: #993399; color: "
                            "#ffffff")
         title_action.setEnabled(False)
@@ -315,13 +345,13 @@ class CalendarioApp(QMainWindow):
                     return
     def mostrar_agenda(self):
         self.hide()
-        self.agenda = Agenda()
+        self.agenda = Agenda(self.qual)
         self.agenda.fechar_agenda.connect(self.mostrar_principal)
         self.agenda.show()
 
     def mostrar_historico(self):
         self.hide()
-        self.hist = Historico()
+        self.hist = Historico(self.qual)
         self.hist.fechar_hist.connect(self.mostrar_principal2)
         self.hist.show()
 
@@ -332,10 +362,9 @@ class CalendarioApp(QMainWindow):
     def mostrar_principal2(self):
         self.hist.close()
         self.show()
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    tela_inicial = CalendarioApp(1)
+    tela_inicial = CalendarioApp(0)
     tela_inicial.show()
     sys.exit(app.exec())
 

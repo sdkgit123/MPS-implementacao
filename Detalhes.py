@@ -31,12 +31,12 @@ class Detalhesn(QWidget):
         elif dados["dadosevento"]["tipo"][row] == "Tarefa":
             self.setStyleSheet("background-color: rgb(152, 251, 152);")
 
-        label = QLabel(f"{dados["dadosevento"]["titulo"][row]}")
-        label2 = QLabel(f"Data: {dados["dadosevento"]["data"][row]}")
-        label3 = QLabel(f"Tipo: {dados["dadosevento"]["tipo"][row]}")
-        label4 = QLabel(f"Hora: {dados["dadosevento"]["horario"][row]}")
-        label5 = QLabel(f"Alarme: {dados["dadosevento"]["alarme"][row]}")
-        label6 = QLabel(f"Link Videoconferência: {dados["dadosevento"]["link"][row]}")
+        label = QLabel(f"{dados['dadosevento']['titulo'][row]}")
+        label2 = QLabel(f"Data: {dados['dadosevento']['data'][row]}")
+        label3 = QLabel(f"Tipo: {dados['dadosevento']['tipo'][row]}")
+        label4 = QLabel(f"Hora: {dados['dadosevento']['horario'][row]}")
+        label5 = QLabel(f"Alarme: {dados['dadosevento']['alarme'][row]}")
+        label6 = QLabel(f"Link Videoconferência: {dados['dadosevento']['link'][row]}")
         layout.addWidget(label)
         layout.addWidget(label2)
         layout.addWidget(label3)

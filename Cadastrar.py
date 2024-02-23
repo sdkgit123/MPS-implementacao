@@ -84,10 +84,6 @@ class Cadastro(QMainWindow):
             else:
                 return False
 
-
-
-
-
         def condicoes():
             labelerro1.hide()
             labelerro2.hide()
@@ -107,9 +103,9 @@ class Cadastro(QMainWindow):
                 main_layout = QVBoxLayout()
                 content_layout = QVBoxLayout()
                 button_layout = QVBoxLayout()
-                dialog.setWindowTitle("SALVAR NOTA")
+                dialog.setWindowTitle("CADASTRAR")
                 dialog.setWindowIcon(QIcon("imagens/IC.ico"))
-                labelavi = QLabel("Nota salva com sucesso!.")
+                labelavi = QLabel("Cadastro feito com sucesso!.")
                 buttonavi = QPushButton("Ok")
                 buttonavi.setFixedSize(100, 30)
                 content_layout.addWidget(labelavi)
