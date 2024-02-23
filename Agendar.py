@@ -26,7 +26,7 @@ class Agenda(QMainWindow):
 
         layoutprincipal = QVBoxLayout(central_widget)
 
-        labeldata = QLabel("Para a Data (formato DD/MM/AA ou DD/MM/AAAA):")
+        labeldata = QLabel("Para a Data (formato DD/MM/AAAA):")
         labeltipo = QLabel("Tipo da Nota:")
         labelhorario = QLabel("Horário:")
         labelnome = QLabel("Título:")
@@ -63,8 +63,8 @@ class Agenda(QMainWindow):
         label1_layout.addWidget(textodata)
         label1_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label1_layout.setContentsMargins(0, 0, 10, 0)
-        labeldata.setFixedSize(390, 50)
-        textodata.setFixedSize(370, 30)
+        labeldata.setFixedSize(270, 50)
+        textodata.setFixedSize(490, 30)
         labeldata.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         label2_layout = QHBoxLayout()

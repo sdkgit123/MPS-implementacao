@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtCore import Qt, pyqtSignal, QDate
-from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont
+from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont, QTextCharFormat, QColor
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QHBoxLayout, \
     QStackedWidget, QCalendarWidget, QGridLayout, QDialog, QLineEdit
 from Agendar import Agenda
@@ -70,9 +70,9 @@ class CalendarioApp(QMainWindow):
         # Adiciona o layout horizontal ao layout principal
         layout_principal.addLayout(layout_horizontal)
 
-        visor = QLineEdit(self)
-        visor.setFixedSize(791,100)
-        visor.setReadOnly(True)
+        self.visor = QLineEdit(self)
+        self.visor.setFixedSize(791, 100)
+        self.visor.setReadOnly(True)
 
         # Criando um QStackedWidget para alternar entre calendário e texto
         self.stacked_widget = QStackedWidget()
@@ -111,7 +111,7 @@ class CalendarioApp(QMainWindow):
         layout_horizontal.addWidget(botao_antes)
         layout_horizontal.addWidget(self.botao_anomes)
         layout_horizontal.addWidget(botao_depois)
-        layout_principal.addWidget(visor)
+        layout_principal.addWidget(self.visor)
         central_widget.setLayout(layout_principal)
 
         # Configurações adicionais para o calendário
@@ -128,6 +128,17 @@ class CalendarioApp(QMainWindow):
         self.create_toolbar()
         self.agenda = None
         self.hist = None
+
+        self.calendario_widget.clicked.connect(self.data_selecionada)
+
+    def data_selecionada(self):
+        data_selecionada = self.calendario_widget.selectedDate()
+        data_formatada = data_selecionada.toString("dd/MM/yyyy")
+        for i in range (len(self.dados["dadosevento"]["data"])):
+            if data_formatada == self.dados["dadosevento"]["data"][i]:
+                self.visor.setText(self.dados["dadosevento"]["data"][i])
+            else:
+                self.visor.setText("Não há eventos para esse dia.")
 
     def naoac(self):
         dialog = QDialog()
