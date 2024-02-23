@@ -1,9 +1,11 @@
 import sys
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont, QColor, QStandardItem, QStandardItemModel, QBrush
+from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont, QColor, QStandardItem, QStandardItemModel, QBrush, QPalette
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QDialog, QTableWidget, \
-    QTableWidgetItem, QHeaderView, QHBoxLayout, QLineEdit
+    QTableWidgetItem, QHeaderView, QHBoxLayout, QLineEdit, QItemDelegate, QAbstractItemView
 from Agendar import Agenda
+from Detalhes import Detalhesn
+import json
 
 
 class Historico(QMainWindow):
@@ -11,10 +13,11 @@ class Historico(QMainWindow):
     def __init__(self):
         super().__init__()
         self._closed = False
-        self.tipo = ["Reunião", "Lembrete", "Tarefa", "Evento", "", "", "", ""]
-        self.data = ["14/03/24", "20/02/2024", "30/02/3078", "40/93/3856", "", "", "", ""]
-        self.horario = ["20:00", " ", " ", "seilar", "", "", "", ""]
-        self.titulo = ["Niver do Daddy", "A Manu Peida", "O dia que eu vou gostar de homi", "horse", "", "", "", ""]
+        nome_arquivo = "dados.json"
+
+        # Ler o conteúdo do arquivo JSON
+        with open(nome_arquivo, "r") as arquivo:
+            dados = json.load(arquivo)
 
         self.setWindowTitle("AGENDA")
         central_widget = QWidget()
@@ -44,9 +47,8 @@ class Historico(QMainWindow):
 
         # Criando uma tabela QTableWidget
         self.tableWidget = QTableWidget()
-        self.tableWidget.setRowCount(len(self.tipo))
+        self.tableWidget.setRowCount(len(dados["dadosevento"]["tipo"]))
         self.tableWidget.setColumnCount(1)
-        button = QPushButton("Detalhes")
 
         self.cor_opcoes = {
             "Reunião": QColor(255,99,71),
@@ -55,25 +57,64 @@ class Historico(QMainWindow):
             "Tarefa": QColor(152,251,152)
         }
 
-        for row in range(len(self.tipo)):
-            # Cria o botão
-            button = QPushButton("Detalhes")
-            button.setFixedSize(100,30)
 
-            item_text = f"{self.titulo[row]} - {self.tipo[row]}\nData: {self.data[row]}\nHora: {self.horario[row]}"
+        button2 = QPushButton("Adicionar Evento")
+        button2.setFixedSize(100, 30)
+        button2.clicked.connect(self.mostrar_agenda)
+
+        if len(dados["dadosevento"]["tipo"]) == 0:
+            widget_transparente = QWidget(self)
+            widget_transparente.setGeometry(self.tableWidget.geometry())
+            widget_transparente.setStyleSheet("background-color: rgba(0, 0, 0, 0)")  # Define o fundo como transparente
+            # Adicionar o widget transparente como um widget filho da janela principal
+            widget_transparente.setParent(self)
+            # Tornar o widget transparente interceptável para eventos de mouse
+            widget_transparente.setMouseTracking(True)
+            widget_transparente.setGeometry(0, 80, 800, 300)  # Define o tamanho igual ao da tabela
+            # Garantir que o widget transparente esteja na parte superior da pilha de widgets
+            widget_transparente.raise_()
+            self.tableWidget.setRowCount(1)
+            naotem = "Não há notas marcadas."
+            item2 = QTableWidgetItem(naotem)  # Criando o item com o texto desejado
+            item2.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.tableWidget.setShowGrid(False)
+            self.tableWidget.setItem(0, 0, item2)  # Adicionando o widget na primeira linha
+
+
+        for row in range(len(dados["dadosevento"]["tipo"])):
+            # Cria o botão
+            self.button = QPushButton("Detalhes")
+            self.button.setFixedSize(100, 30)
+
+            # Obtém os dados específicos do evento atual
+            titulo = dados["dadosevento"]["titulo"][row]
+            tipo = dados["dadosevento"]["tipo"][row]
+            data = dados["dadosevento"]["data"][row]
+            horario = dados["dadosevento"]["horario"][row]
+
+            # Cria o texto do item da tabela com os dados do evento atual
+            item_text = f"{titulo} - {tipo}\nData: {data}\nHora: {horario}"
             item = QTableWidgetItem(item_text)
 
-            # Atualizar a cor do item de tabela
-            if self.tipo[row] in self.cor_opcoes:
-                item.setBackground(self.cor_opcoes[self.tipo[row]])
+            # Atualiza a cor do item de tabela com base no tipo de evento
+            if tipo in self.cor_opcoes:
+                item.setBackground(self.cor_opcoes[tipo])
 
             # Cria o widget personalizado
-            custom_widget = self.create_custom_widget(button, item, self.cor_opcoes.get(self.tipo[row]))
+            custom_widget = self.create_custom_widget(self.button, item, self.cor_opcoes.get(tipo))
 
             # Adiciona o widget personalizado à tabela
             self.tableWidget.setCellWidget(row, 0, custom_widget)
 
+        self.button.clicked.connect(self.handle_detalhes_button_clicked)
 
+
+        layoutabaixo = QVBoxLayout()
+        layoutabaixo.addWidget(button2)
+        layoutabaixo.setContentsMargins(330, 0, 0, 0)
+
+
+        # Aqui você conecta o sinal clicked do botão à função handle_detalhes_button_clicked
 
 
         self.tableWidget.setStyleSheet("background-color: #BA55D3;")
@@ -87,10 +128,24 @@ class Historico(QMainWindow):
         self.tableWidget.horizontalHeader().setVisible(False)
         layout.addLayout(buscalayout)
         layout.addWidget(self.tableWidget)
+        layout.addLayout(layoutabaixo)
+        self.janeladetalhe = None
+
+    def handle_detalhes_button_clicked(self):
+        button = self.sender()  # Obtém o botão que disparou o sinal
+        if isinstance(button, QPushButton):
+            index = self.tableWidget.indexAt(button.pos())  # Obtém o índice da célula onde o botão está localizado
+            if index.isValid():
+                row = index.row()  # Obtém o número da linha
+                if self.janeladetalhe is None:
+                    self.hide()
+                    self.janeladetalhe = Detalhesn(row)  # Crie uma nova instância apenas se ainda não existir
+                    self.janeladetalhe.show()
+                    self.janeladetalhe.fechar_det.connect(self.mostrar_principal2)
 
     def create_custom_widget(self, button, item, color):
-        custom_widget = QWidget()
-        layout = QVBoxLayout(custom_widget)
+        self.custom_widget = QWidget()
+        layout = QVBoxLayout(self.custom_widget)
         buttonlayout = QVBoxLayout()
         buttonlayout.addWidget(button)
         buttonlayout.setContentsMargins(325, 0, 0, 0)
@@ -100,8 +155,8 @@ class Historico(QMainWindow):
         layout.addWidget(label)
         layout.addLayout(buttonlayout)
         if color is not None:
-            custom_widget.setStyleSheet(f"background-color: {color.name()}")
-        return custom_widget
+            self.custom_widget.setStyleSheet(f"background-color: {color.name()}")
+        return self.custom_widget
 
     def naoac(self):
         dialog = QDialog()
@@ -259,6 +314,12 @@ class Historico(QMainWindow):
         self.agenda.close()
         self.show()
 
+    def mostrar_principal2(self):
+        self.janeladetalhe.close()
+        self.show()
+        self.janeladetalhe = None
+
+
     def closeEvent(self, event):
         if not self._closed:
             self._closed = True
@@ -266,3 +327,9 @@ class Historico(QMainWindow):
             if self.parent():
                 self.parent().show()
         event.accept()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    historico = Historico()
+    historico.show()
+    sys.exit(app.exec())

@@ -1,8 +1,11 @@
 import sys
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont
+from PyQt6.QtGui import QIcon, QPixmap, QAction, QFont, QColor
 from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QApplication, QLineEdit, \
-    QHBoxLayout, QComboBox, QDialog
+    QHBoxLayout, QComboBox, QDialog, QScrollArea
+import json
+import re
+import validators
 
 class Agenda(QMainWindow):
     fechar_agenda = pyqtSignal()
@@ -10,6 +13,11 @@ class Agenda(QMainWindow):
     def __init__(self):
         super().__init__()
         self._closed = False  # Definindo o atributo 'closed' como False inicialmente
+        nome_arquivo = "dados.json"
+
+        # Ler o conteúdo do arquivo JSON
+        with open(nome_arquivo, "r") as arquivo:
+            self.dados = json.load(arquivo)
 
         self.setWindowTitle("AGENDAR")
 
@@ -18,23 +26,24 @@ class Agenda(QMainWindow):
 
         layoutprincipal = QVBoxLayout(central_widget)
 
-        labeld = QLabel("Para a Data (formato DD/MM/AA ou DD/MM/AAAA):")
-        labelt = QLabel("Tipo do Evento:")
-        labelh = QLabel("Horário:")
-        labeln = QLabel("Título:")
-        labela = QLabel("Definir Alarme Para:")
-        labelr = QLabel("Link Para Reunião:")
+        labeldata = QLabel("Para a Data (formato DD/MM/AA ou DD/MM/AAAA):")
+        labeltipo = QLabel("Tipo da Nota:")
+        labelhorario = QLabel("Horário:")
+        labelnome = QLabel("Título:")
+        labelaalarme = QLabel("Definir Alarme Para:")
+        labellink = QLabel("Link Para Reunião:")
 
         buttona = QPushButton("Adicionar Anotações")
         buttonx = QPushButton("Adicionar Anexos")
         buttonc = QPushButton("Convidar Pessoas")
         buttons = QPushButton("Salvar")
 
-        textod = QLineEdit(self)
-        textoh = QLineEdit(self)
-        texton = QLineEdit(self)
-        textoa = QLineEdit(self)
-        textor = QLineEdit(self)
+        textodata = QLineEdit(self)
+        textohorario = QLineEdit(self)
+        textonome = QLineEdit(self)
+        textoaalarme = QLineEdit(self)
+        textolink = QLineEdit(self)
+
 
         combot = QComboBox(self)
         combot.addItem("Reunião")
@@ -50,58 +59,58 @@ class Agenda(QMainWindow):
 
         # Layout para o label
         label1_layout = QHBoxLayout()
-        label1_layout.addWidget(labeld)
-        label1_layout.addWidget(textod)
-        label1_layout.setAlignment(labeld, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
+        label1_layout.addWidget(labeldata)
+        label1_layout.addWidget(textodata)
+        label1_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label1_layout.setContentsMargins(0, 0, 10, 0)
-        labeld.setFixedSize(390, 50)
-        textod.setFixedSize(370, 30)
-        labeld.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
+        labeldata.setFixedSize(390, 50)
+        textodata.setFixedSize(370, 30)
+        labeldata.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         label2_layout = QHBoxLayout()
-        label2_layout.addWidget(labelt)
+        label2_layout.addWidget(labeltipo)
         label2_layout.addWidget(combot)
-        label2_layout.setAlignment(labeld, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
+        label2_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label2_layout.setContentsMargins(0, 0, 250, 0)
-        labelt.setFixedSize(120, 50)
+        labeltipo.setFixedSize(120, 50)
         combot.setFixedSize(400, 30)
-        labelt.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
+        labeltipo.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         label3_layout = QHBoxLayout()
-        label3_layout.addWidget(labelh)
-        label3_layout.addWidget(textoh)
-        label3_layout.setAlignment(labeld, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
+        label3_layout.addWidget(labelhorario)
+        label3_layout.addWidget(textohorario)
+        label3_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label3_layout.setContentsMargins(0, 0, 310, 0)
-        labelh.setFixedSize(60, 50)
-        textoh.setFixedSize(400, 30)
-        labelh.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
+        labelhorario.setFixedSize(60, 50)
+        textohorario.setFixedSize(400, 30)
+        labelhorario.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         label4_layout = QHBoxLayout()
-        label4_layout.addWidget(labeln)
-        label4_layout.addWidget(texton)
-        label4_layout.setAlignment(labeld, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
+        label4_layout.addWidget(labelnome)
+        label4_layout.addWidget(textonome)
+        label4_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label4_layout.setContentsMargins(0, 0, 320, 0)
-        labeln.setFixedSize(50, 50)
-        texton.setFixedSize(400, 30)
-        labeln.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
+        labelnome.setFixedSize(50, 50)
+        textonome.setFixedSize(400, 30)
+        labelnome.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         label5_layout = QHBoxLayout()
-        label5_layout.addWidget(labela)
-        label5_layout.addWidget(textoa)
-        label5_layout.setAlignment(labeld, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
+        label5_layout.addWidget(labelaalarme)
+        label5_layout.addWidget(textoaalarme)
+        label5_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label5_layout.setContentsMargins(0, 0, 220, 0)
-        labela.setFixedSize(150, 50)
-        textoa.setFixedSize(400, 30)
-        labela.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
+        labelaalarme.setFixedSize(150, 50)
+        textoaalarme.setFixedSize(400, 30)
+        labelaalarme.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         label6_layout = QHBoxLayout()
-        label6_layout.addWidget(labelr)
-        label6_layout.addWidget(textor)
-        label6_layout.setAlignment(labeld, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
+        label6_layout.addWidget(labellink)
+        label6_layout.addWidget(textolink)
+        label6_layout.setAlignment(labeldata, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
         label6_layout.setContentsMargins(0, 0, 230, 0)
-        labelr.setFixedSize(140, 50)
-        textor.setFixedSize(400, 30)
-        labelr.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
+        labellink.setFixedSize(140, 50)
+        textolink.setFixedSize(400, 30)
+        labellink.setStyleSheet("font-size: 15px; color: white; font-weight: bold")
 
         # Layout para os botões
         buttons_layout = QVBoxLayout()
@@ -115,6 +124,38 @@ class Agenda(QMainWindow):
         buttonx.setFixedSize(130, 40)
         buttonc.setFixedSize(130, 40)
 
+        layout_erros = QVBoxLayout()
+        dataerro = QLabel("Data: Campo Inválido")
+        nomeerro = QLabel("Título: Campo Inválido")
+        tipoerro = QLabel("Tipo: Campo Inválido")
+        horaerro = QLabel("Horário: Formato Inválido")
+        alarmeerro = QLabel("Alarme: Formato Inválido")
+        linkerro = QLabel("Link Videoconferência: Formato Inválido")
+        dataerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
+        nomeerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
+        tipoerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
+        horaerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
+        alarmeerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
+        linkerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
+        layout_erros.addWidget(dataerro)
+        layout_erros.addWidget(nomeerro)
+        layout_erros.addWidget(tipoerro)
+        layout_erros.addWidget(horaerro)
+        layout_erros.addWidget(alarmeerro)
+        layout_erros.addWidget(linkerro)
+        dataerro.hide()
+        nomeerro.hide()
+        tipoerro.hide()
+        horaerro.hide()
+        alarmeerro.hide()
+        linkerro.hide()
+
+        layoutlayout = QHBoxLayout()
+        layoutlayout.addLayout(buttons_layout)
+        layoutlayout.addLayout(layout_erros)
+        layoutlayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+
         button_layout = QVBoxLayout()
         button_layout.addWidget(buttons)
         button_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)  # Alinhe os botões na parte inferior
@@ -124,7 +165,8 @@ class Agenda(QMainWindow):
 
 
 
-        labeld.setAutoFillBackground(False)
+
+        labeldata.setAutoFillBackground(False)
 
         # Adicione os layouts ao layout principal
         layoutprincipal.addLayout(label1_layout)
@@ -133,7 +175,7 @@ class Agenda(QMainWindow):
         layoutprincipal.addLayout(label4_layout)
         layoutprincipal.addLayout(label5_layout)
         layoutprincipal.addLayout(label6_layout)
-        layoutprincipal.addLayout(buttons_layout)
+        layoutprincipal.addLayout(layoutlayout)
         layoutprincipal.addLayout(button_layout)
 
         self.setWindowIcon(QIcon("imagens/IC.ico"))
@@ -142,6 +184,94 @@ class Agenda(QMainWindow):
         self.create_toolbar()
 
         self.hist = None
+
+
+
+
+
+
+        def salvar():
+            self.erros = 0
+            regex = r"^\d{1,2}/\d{1,2}/\d{4}$"
+            self.resultadodata = re.search(regex, textodata.text())
+            padrao_horario = r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$'
+            self.resultadohorario = re.search(padrao_horario, textohorario.text())
+            self.resultadoalarme = re.search(padrao_horario, textoaalarme.text())
+            dataerro.hide()
+            nomeerro.hide()
+            tipoerro.hide()
+            horaerro.hide()
+            alarmeerro.hide()
+            linkerro.hide()
+
+
+            if len(textohorario.text()) != 0 and self.resultadohorario is None:
+                self.erros += 1
+            if len(textoaalarme.text()) != 0 and self.resultadoalarme is None:
+                self.erros += 1
+            if len(textolink.text()) != 0 and not validators.url(textolink.text()):
+                self.erros += 1
+            if len(textodata.text()) == 0 or self.resultadodata is None:
+                self.erros += 1
+            if len(textonome.text()) == 0:
+                self.erros += 1
+            if len(combot.currentText()) == 0:
+                self.erros += 1
+
+            if self.erros == 0:
+                self.itemselecionado = combot.currentText()
+                self.dados["dadosevento"]["tipo"].append(self.itemselecionado)
+                self.dados["dadosevento"]["data"].append(textodata.text())
+                self.dados["dadosevento"]["horario"].append(textohorario.text())
+                self.dados["dadosevento"]["titulo"].append(textonome.text())
+                self.dados["dadosevento"]["alarme"].append(textoaalarme.text())
+                self.dados["dadosevento"]["link"].append(textolink.text())
+                with open(nome_arquivo, "w") as arquivo:
+                    json.dump(self.dados, arquivo)
+                dialog = QDialog()
+                main_layout = QVBoxLayout()
+                content_layout = QVBoxLayout()
+                button_layout = QVBoxLayout()
+                dialog.setWindowTitle("SALVAR NOTA")
+                dialog.setWindowIcon(QIcon("imagens/IC.ico"))
+                labelavi = QLabel("Nota salva com sucesso!.")
+                buttonavi = QPushButton("Ok")
+                buttonavi.setFixedSize(100, 30)
+                content_layout.addWidget(labelavi)
+                labelavi.setStyleSheet("text-align: center")
+
+                button_layout.addWidget(buttonavi)
+                button_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
+                button_layout.setContentsMargins(40, 0, 0, 0)
+
+                main_layout.addLayout(content_layout)
+                main_layout.addLayout(button_layout)
+
+                buttonavi.clicked.connect(self.close)
+                buttonavi.clicked.connect(dialog.close)
+
+                dialog.setLayout(main_layout)
+                dialog.resize(200, 80)
+                dialog.setMaximumSize(200, 80)
+                dialog.exec()
+
+
+            else:
+                if len(textohorario.text()) != 0 and self.resultadohorario is None:
+                    horaerro.show()
+                if len(textoaalarme.text()) != 0 and self.resultadoalarme is None:
+                    alarmeerro.show()
+                if len(textodata.text()) == 0 or self.resultadodata is None:
+                    dataerro.show()
+                if len(textolink.text()) != 0 and not validators.url(textolink.text()):
+                    linkerro.show()
+                if len(textonome.text()) == 0:
+                    nomeerro.show()
+                if len(combot.currentText()) == 0:
+                    tipoerro.show()
+
+        buttons.clicked.connect(salvar)
+
 
         def naoa():
             dialog = QDialog()
@@ -388,4 +518,9 @@ class Agenda(QMainWindow):
                 self.parent().show()
         event.accept()
 
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    tela_inicial = Agenda()
+    tela_inicial.show()
+    sys.exit(app.exec())
 
