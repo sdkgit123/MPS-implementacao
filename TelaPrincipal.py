@@ -5,16 +5,22 @@ from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidg
     QStackedWidget, QCalendarWidget, QGridLayout, QDialog, QLineEdit
 from Agendar import Agenda
 from Historico import Historico
+import json
 
 class CalendarioApp(QMainWindow):
-    def __init__(self):
+    def __init__(self, numero):
         super().__init__()
-        self.init_ui()
+        nome_arquivo = "dados.json"
 
-    def init_ui(self):
+        # Ler o conteúdo do arquivo JSON
+        with open(nome_arquivo, "r") as arquivo:
+            self.dados = json.load(arquivo)
+
         self.agenda = None
 
         self.widget_grid = QWidget()
+
+        self.qual = numero
 
         self.listames = [['Janeiro', 'Fevereiro', 'Março'],
                     ['Abril', 'Maio', 'Junho'],
@@ -212,7 +218,7 @@ class CalendarioApp(QMainWindow):
         action5 = QAction("Configurações", self)
         menu = self.menuBar()
         file_menu = menu.addMenu("File")
-        title_action = QAction("Fulano de Tal", self)
+        title_action = QAction(f"{self.dados["dadosusuario"]["nome"][self.qual]}", self)
         menu.setStyleSheet("font-family: Arial; font-size: 20pt; font-weight: bold; background-color: #993399; color: "
                            "#ffffff")
         title_action.setEnabled(False)
@@ -318,7 +324,7 @@ class CalendarioApp(QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    tela_inicial = CalendarioApp()
+    tela_inicial = CalendarioApp(1)
     tela_inicial.show()
     sys.exit(app.exec())
 

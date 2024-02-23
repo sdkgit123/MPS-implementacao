@@ -328,8 +328,4 @@ class Historico(QMainWindow):
                 self.parent().show()
         event.accept()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    historico = Historico()
-    historico.show()
-    sys.exit(app.exec())
+

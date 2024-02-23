@@ -1,10 +1,19 @@
+import re
+import sys
+
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QIcon, QPixmap
-from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QDialog
+from PyQt6.QtWidgets import QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLineEdit, QDialog, QApplication
 from TelaPrincipal import CalendarioApp
+import json
 class Logar(QMainWindow):
     def __init__(self):
         super().__init__()
+        nome_arquivo = "dados.json"
+
+        # Ler o conteúdo do arquivo JSON
+        with open(nome_arquivo, "r") as arquivo:
+            dados = json.load(arquivo)
 
         self.setWindowTitle("LOGIN")
 
@@ -18,8 +27,12 @@ class Logar(QMainWindow):
         labelsenha = QLabel("Senha")
         textosenha = QLineEdit(self)
 
+        labelerro = QLabel("Usuário e/ou senha incorretos.")
+        labelerro.hide()
+
         buttonesq = QPushButton("Esqueci minha senha")
 
+        self.contador = 0
         self.janelapri = None
 
         def abrir_esq():
@@ -49,15 +62,11 @@ class Logar(QMainWindow):
             dialog.setMaximumSize(200, 80)
             dialog.exec()
 
-        buttonesq.clicked.connect(abrir_esq)
 
-        def abrirtelapri():
-            if self.janelapri is None:
-                self.close()
-                self.janelapri = CalendarioApp()  # Crie uma nova instância apenas se ainda não existir
-            self.janelapri.show()
 
-        button.clicked.connect(abrirtelapri)
+
+
+
 
         # Crie um widget central para a janela inicial
         central_widget = QWidget()
@@ -76,7 +85,7 @@ class Logar(QMainWindow):
         label_layout = QVBoxLayout()
         label_layout.addWidget(label)
         label_layout.setAlignment(label, Qt.AlignmentFlag.AlignTop)  # Alinhe o label no topo
-        label_layout.setContentsMargins(120, 50, 0, 0)  # Margens específicas para o layout do label
+        label_layout.setContentsMargins(120, 0, 0, 0)  # Margens específicas para o layout do label
 
         texto_layout = QVBoxLayout()
         texto_layout.addWidget(labelemail)
@@ -84,13 +93,20 @@ class Logar(QMainWindow):
         texto_layout.addWidget(labelsenha)
         texto_layout.addWidget(textosenha)
         texto_layout.setAlignment(Qt.AlignmentFlag.AlignBottom)
-        texto_layout.setContentsMargins(30, 40, 0, 0)
+        texto_layout.setContentsMargins(30, 0, 0, 0)
         texto_layout.setSpacing(10)
 
         esqlayout = QVBoxLayout()
         esqlayout.addWidget(buttonesq)
         esqlayout.setAlignment(Qt.AlignmentFlag.AlignBottom)
         esqlayout.setContentsMargins(30, 0, 0, 40)
+
+        errolayout = QVBoxLayout()
+        errolayout.addWidget(labelerro)
+        labelerro.hide()
+        errolayout.setContentsMargins(30, 0, 0, 0)
+        labelerro.setFixedSize(200, 20)
+        labelerro.setStyleSheet("color: red; font-weight: bold; background-color: purple")
 
         # Layout para os botões
         button_layout = QVBoxLayout()
@@ -112,7 +128,10 @@ class Logar(QMainWindow):
         layout.addLayout(label_layout)
         layout.addLayout(texto_layout)
         layout.addLayout(esqlayout)
+        layout.addLayout(errolayout)
         layout.addLayout(button_layout)
+
+        buttonesq.clicked.connect(abrir_esq)
 
         # Defina o estilo do texto da label
         label.setStyleSheet(
@@ -124,6 +143,32 @@ class Logar(QMainWindow):
         self.setWindowIcon(QIcon("imagens/IC.ico"))
         self.resize(400, 500)
         self.setMaximumSize(400, 500)
+
+
+
+
+
+        def abrirtelapri():
+            if self.janelapri is None:
+                self.close()
+                self.janelapri = CalendarioApp(self.contador)  # Crie uma nova instância apenas se ainda não existir
+            self.janelapri.show()
+
+
+        def condicoes():
+            labelerro.hide()
+
+            for self.contador in range(len(dados["dadosusuario"]["email"])):
+                if textoemail.text() == dados["dadosusuario"]["email"][self.contador] and textosenha.text() == \
+                        dados["dadosusuario"]["senha"][self.contador]:
+                    abrirtelapri()
+                else:
+                    labelerro.show()
+                    self.contador = 0
+
+
+
+        button.clicked.connect(condicoes)
 
     def closeEvent(self, event):
         from TelaInicial import TelaInicial
